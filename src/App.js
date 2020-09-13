@@ -5,13 +5,16 @@ const ENDPOINT = 'http://127.0.0.1:4001';
 const socket = socketIOClient(ENDPOINT);
 
 function App() {
-  const [display, setDisplay] = useState('');
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    socket.on('latestMessage', data => {
-      setDisplay(data);
+    socket.on('messageHistory', history => {
+      setMessages(history);
     });
+    socket.on('newMessage', message => {
+      setMessages(messages => [...messages, message])
+    })
     return () => socket.disconnect();
   }, []);
 
@@ -20,13 +23,16 @@ function App() {
       <div>
         <input value={input} onInput={e => setInput(e.target.value)} />
         <button onClick={() => {
-          console.log(input)
-          socket.emit('newMessage', input)
-          setInput('')
+          if (input !== '') {
+            console.log(messages)
+            socket.emit('sendMessage', input)
+           // setInput('')
+          }
         }}>Send</button>
+        <button onClick={() => console.log(messages)}>Get History</button>
       </div>
       <div>
-        <span>Latest message: </span><span>{display}</span>
+        <ol>{messages.map((message, index) => <li key={index}>{message}</li>)}</ol>
       </div>
     </>
   );
