@@ -12,8 +12,9 @@ function App() {
     socket.on('messageHistory', history => {
       setMessages(history);
     });
-    socket.on('newMessage', message => {
-      setMessages(messages => [...messages, message])
+    socket.on('newMessage', newMessage => {
+      console.log('lalala')
+      setMessages(messages => [...messages, newMessage])
     })
     return () => socket.disconnect();
   }, []);
@@ -24,9 +25,9 @@ function App() {
         <input value={input} onInput={e => setInput(e.target.value)} />
         <button onClick={() => {
           if (input !== '') {
-            console.log(messages)
+            setInput('')
             socket.emit('sendMessage', input)
-           // setInput('')
+            setMessages([...messages, input])
           }
         }}>Send</button>
         <button onClick={() => console.log(messages)}>Get History</button>
